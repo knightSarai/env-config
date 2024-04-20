@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+package_name="neovim"
+
+# Check if Neovim package is installed
+if dpkg -l | grep -qw "$package_name"; then
+    echo "Uninstalling Neovim..."
+    sudo dpkg --purge "$package_name"
+    echo "Neovim has been uninstalled."
+else
+    echo "Neovim package is not installed."
+fi
+
+
+echo "Cleanup complete."
+

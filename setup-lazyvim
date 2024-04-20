@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# Update and install necessary utilities
+sudo apt update
+sudo apt install -y curl unzip
+
+# Function to check if a command exists
+command_exists() {
+	type "$1" &>/dev/null
+}
+
+# Install Nerd Fonts (Code New Roman) if not already installed
+if [ ! -d "$HOME/.local/share/fonts/Code New Roman Nerd Font Complete.ttf" ]; then
+	echo "Installing Nerd Fonts..."
+	mkdir -p ~/.local/share/fonts
+	cd ~/.local/share/fonts
+	curl -fLo "CodeNewRoman.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CodeNewRoman.zip"
+	unzip CodeNewRoman.zip
+	rm CodeNewRoman.zip
+	fc-cache -fv
+	cd -
+else
+	echo "Nerd Fonts already installed."
+fi
+
+# Install LazyGit if not already installed
+if ! command_exists lazygit; then
+	echo "Installing LazyGit..."
+	LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+	curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
+	tar xf lazygit.tar.gz lazygit
+	sudo install lazygit /usr/local/bin
+
+else
+	echo "LazyGit already installed."
+fi
+
+# Install RipGrep if not already installed
+if ! command_exists rg; then
+	sudo apt-get install ripgrep
+else
+	echo "RipGrep already installed."
+fi
+
+# Install FD if not already installed
+if ! command_exists fd; then
+	sudo apt install fd-find
+else
+	echo "FD already installed."
+fi
+
+echo "Installation of required tools is complete."
