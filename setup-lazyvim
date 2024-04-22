@@ -6,6 +6,7 @@ set -e
 # Update and install necessary utilities
 sudo apt update
 sudo apt install -y curl unzip
+sudo apt install xclip
 
 # Function to check if a command exists
 command_exists() {
