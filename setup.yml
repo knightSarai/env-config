@@ -1,9 +1,12 @@
 - hosts: localhost
   become: true
-  # pre_tasks:
-  # - name: Update Cache
-  #   apt:
-  #     update_cache: true
+  pre_tasks:
+  - name: Update Cache
+    apt:
+      update_cache: true
+    tags:
+      - install
+      - core
   tasks:
     - include: tasks/zsh.yml
     - include: tasks/node.yml
