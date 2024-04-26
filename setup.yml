@@ -1,5 +1,8 @@
 - hosts: localhost
   become: true
+  vars:
+    source_key: "./.ssh/id_ed25519"
+    dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_ed25519"
   pre_tasks:
   - name: Update Cache
     apt:
@@ -8,5 +11,9 @@
       - install
       - core
   tasks:
-    - include: tasks/zsh.yml
-    - include: tasks/node.yml
+  - name: ssh
+    import_tasks: tasks/ssh.yml
+  - name: zsh
+    import_tasks: tasks/zsh.yml
+  - name: node
+    import_tasks: tasks/node.yml
