@@ -14,17 +14,17 @@ command_exists() {
 }
 
 # Install Nerd Fonts (Code New Roman) if not already installed
-if [ ! -d "$HOME/.local/share/fonts/Code New Roman Nerd Font Complete.ttf" ]; then
-	echo "Installing Nerd Fonts..."
+if [ ! -d "$HOME/.local/share/fonts/JetBrains Mono Regular Nerd Font Complete.ttf" ]; then
+	echo "Installing JetBrains Mono Nerd Font..."
 	mkdir -p ~/.local/share/fonts
 	cd ~/.local/share/fonts
-	curl -fLo "CodeNewRoman.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/CodeNewRoman.zip"
-	unzip CodeNewRoman.zip
-	rm CodeNewRoman.zip
+	curl -fLo "JetBrainsMono.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"
+	unzip JetBrainsMono.zip
+	rm JetBrainsMono.zip
 	fc-cache -fv
 	cd -
 else
-	echo "Nerd Fonts already installed."
+	echo "JetBrains Mono Nerd Font already installed."
 fi
 
 # Install LazyGit if not already installed

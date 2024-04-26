@@ -1,0 +1,33 @@
+
+- name: Get the latest LazyGit version
+  uri:
+    url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+    return_content: yes
+    headers:
+      Accept: application/vnd.github.v3+json
+  register: lazygit_release
+  tags:
+    - lazygit
+
+- name: Download LazyGit
+  get_url:
+    url: "https://github.com/jesseduffield/lazygit/releases/download/{{ lazygit_release.json.tag_name }}/lazygit_{{ lazygit_release.json.tag_name[1:] }}_Linux_x86_64.tar.gz"
+    dest: "/tmp/lazygit.tar.gz"
+  tags:
+    - lazygit
+
+- name: Extract LazyGit
+  unarchive:
+    src: "/tmp/lazygit.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+    creates: "/tmp/lazygit"
+  tags:
+    - lazygit
+
+- name: Install LazyGit
+  command: install /tmp/lazygit /usr/local/bin/lazygit
+  become: yes
+  tags:
+    - lazygit
+

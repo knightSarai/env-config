@@ -17,3 +17,5 @@
     import_tasks: tasks/zsh.yml
   - name: node
     import_tasks: tasks/node.yml
+  - name: lazygit
+    import_tasks: tasks/lazygit.yml
