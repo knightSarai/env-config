@@ -12,19 +12,19 @@ cd ~/code/build
 
 # Prerequisites installation (based on Ubuntu/Debian)
 sudo apt update
-sudo apt install -y ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
+sudo apt install -y ninja-build gettext libtool libtool-bin build-essential autoconf automake cmake g++ pkg-config unzip curl doxygen
 
-# Check if the Neovim repo already exists and clone or update it
+#Check if the Neovim repo already exists and clone or update it
 if [ -d "neovim" ]; then
-    echo "Neovim repository already exists. Fetching latest updates..."
-    cd neovim
-    git checkout stable
-    git pull origin stable
+	echo "Neovim repository already exists. Fetching latest updates..."
+	cd neovim
+	git checkout stable
+	git pull origin stable
 else
-    echo "Cloning Neovim repository..."
-    git clone https://github.com/neovim/neovim.git
-    cd neovim
-    git checkout stable
+	echo "Cloning Neovim repository..."
+	git clone https://github.com/neovim/neovim.git
+	cd neovim
+	git checkout stable
 fi
 
 # Build
@@ -44,4 +44,3 @@ echo "Neovim has been installed successfully!"
 
 # Return to the original directory
 cd "$original_dir"
-

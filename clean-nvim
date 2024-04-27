@@ -4,15 +4,14 @@ set -e
 
 package_name="neovim"
 
-# Check if Neovim package is installed
+find $HOME/.local/share/fonts -type f -name '*NerdFont*' -exec rm {} +
+
 if dpkg -l | grep -qw "$package_name"; then
-    echo "Uninstalling Neovim..."
-    sudo dpkg --purge "$package_name"
-    echo "Neovim has been uninstalled."
+	echo "Uninstalling Neovim..."
+	sudo dpkg --purge "$package_name"
+	echo "Neovim has been uninstalled."
 else
-    echo "Neovim package is not installed."
+	echo "Neovim package is not installed."
 fi
 
-
 echo "Cleanup complete."
-

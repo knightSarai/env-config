@@ -1,0 +1,56 @@
+- name: Install Lazyvim packages
+  apt:
+    name:
+      - curl
+      - unzip
+      - xclip
+      - ripgrep
+      - fd-find
+      - fontconfig
+    state: present
+    update_cache: yes
+  tags:
+    - nvim
+
+- name: Install JetBrains Mono Nerd Font
+  block:
+    - name: Create fonts directory
+      file:
+        path: "{{ ansible_env.HOME }}/.local/share/fonts"
+        state: directory
+
+    - name: Download JetBrains Mono Nerd Font
+      get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"
+        dest: "{{ ansible_env.HOME }}/.local/share/fonts/JetBrainsMono.zip"
+        mode: '0644'
+
+    - name: Unzip JetBrains Mono Nerd Font
+      unarchive:
+        src: "{{ ansible_env.HOME }}/.local/share/fonts/JetBrainsMono.zip"
+        dest: "{{ ansible_env.HOME }}/.local/share/fonts/"
+        remote_src: yes
+      register: unzip_font
+
+    - name: Remove the zip file
+      file:
+        path: "{{ ansible_env.HOME }}/.local/share/fonts/JetBrainsMono.zip"
+        state: absent
+      when: unzip_font is changed
+
+    - name: Update font cache
+      shell: fc-cache -fv
+      args:
+        executable: /bin/bash
+  when: ansible_facts['fonts']['JetBrains Mono Regular Nerd Font Complete'] is not defined
+  tags:
+    - nvim
+
+- name: Execute the build script for Neovim
+  shell: "{{ playbook_dir }}/build-nvim"
+  args:
+    chdir: "{{ playbook_dir }}"
+  become: yes
+  become_user: root
+  tags:
+    - nvim
