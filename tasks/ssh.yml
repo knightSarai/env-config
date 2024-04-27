@@ -6,6 +6,7 @@
   tags:
     - dotfiles
     - ssh
+    - shell
 - name: Install ssh key
   copy:
     src: "{{ source_key }}"
@@ -14,6 +15,7 @@
   tags:
     - dotfiles
     - ssh
+    - shell
 - name: Install ssh key public
   copy:
     src: "{{ source_key }}.pub"
@@ -22,6 +24,7 @@
   tags:
     - dotfiles
     - ssh
+    - shell
 - name: Add public keys to authorized keys
   authorized_key:
     user: "{{ lookup('env', 'USER') }}"
@@ -29,3 +32,7 @@
     key: "{{ lookup('file', item) }}"
   loop: "{{ lookup('fileglob', lookup('env', 'HOME') + '/.ssh/*.pub', wantlist=True) }}"
   become: yes
+  tags:
+    - dotfiles
+    - ssh
+    - shell

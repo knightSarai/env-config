@@ -2,11 +2,13 @@
   apt: name=zsh
   tags:
     - zsh
+    - shell
 
 - name: Change Shell
   shell: chsh -s `which zsh`
   tags:
     - zsh
+    - shell
 
 - name: Check that the somefile.conf exists
   stat:
@@ -14,11 +16,13 @@
   register: oh_my_stats
   tags:
     - zsh
+    - shell
 
 - name: Oh-My-Zsh
   shell: curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh > ~/.oh-my-installer && chmod +x ~/.oh-my-installer && ~/.oh-my-installer
   tags:
     - zsh
+    - shell
 
 - name: Install zsh-autosuggestions
   ansible.builtin.git:
@@ -26,3 +30,4 @@
     dest: "~/.oh-my-zsh/plugins/zsh-autosuggestions"
   tags:
     - zsh
+    - shell
