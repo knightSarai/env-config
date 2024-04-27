@@ -1,3 +1,11 @@
+- name: Backup existing .zshrc
+  ansible.builtin.command:
+    cmd: mv "{{ lookup('env', 'HOME') }}/.zshrc" "{{ lookup('env', 'HOME') }}/.zshrc.backup"
+  args:
+    creates: "{{ lookup('env', 'HOME') }}/.zshrc.backup"
+  tags:
+    - dotfiles
+    - shell
 - name: Installing stow
   apt: name=stow
   tags:

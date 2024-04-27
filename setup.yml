@@ -13,8 +13,6 @@
   tasks:
   - name: ssh
     import_tasks: tasks/ssh.yml
-  - name: dotfiles
-    import_tasks: tasks/dotfiles.yml
   - name: zsh
     import_tasks: tasks/zsh.yml
   - name: node
@@ -23,3 +21,5 @@
     import_tasks: tasks/lazygit.yml
   - name: nvim
     import_tasks: tasks/nvim.yml
+  - name: dotfiles
+    import_tasks: tasks/dotfiles.yml
