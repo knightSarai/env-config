@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Installing JetBrains Mono Nerd Font..."
+
+mkdir -p ~/.local/share/fonts
+cd ~/.local/share/fonts
+curl -fLo "JetBrainsMono.zip" "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"
+unzip JetBrainsMono.zip
+rm JetBrainsMono.zip
