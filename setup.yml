@@ -13,6 +13,8 @@
   tasks:
   - name: ssh
     import_tasks: tasks/ssh.yml
+  - name: dotfiles
+    import_tasks: tasks/dotfiles.yml
   - name: zsh
     import_tasks: tasks/zsh.yml
   - name: node
