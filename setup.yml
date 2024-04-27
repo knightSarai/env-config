@@ -11,6 +11,8 @@
       - install
       - core
   tasks:
+  - name: tools
+    import_tasks: tasks/tools.yml
   - name: ssh
     import_tasks: tasks/ssh.yml
   - name: zsh
