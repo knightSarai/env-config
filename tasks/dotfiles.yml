@@ -1,8 +1,8 @@
 - name: Backup existing .zshrc
   ansible.builtin.command:
-    cmd: mv "{{ lookup('env', 'HOME') }}/.zshrc" "{{ lookup('env', 'HOME') }}/.zshrc.backup"
+    cmd: mv "/home/knight/.zshrc" "/home/knight/.zshrc.backup"
   args:
-    creates: "{{ lookup('env', 'HOME') }}/.zshrc.backup"
+    creates: "/home/knight/.zshrc.backup"
   tags:
     - dotfiles
     - shell
@@ -14,13 +14,13 @@
 - name: Cloning .dotfiles
   ansible.builtin.git:
     repo: 'git@github.com:knightSarai/.dotfiles.git'
-    dest: "{{ lookup('env', 'HOME') }}/.dotfiles"
+    dest: "/home/knight/.dotfiles"
     accept_hostkey: yes
   tags:
     - dotfiles
     - shell
 - name: Stow dotfiles
-  shell: cd $HOME/.dotfiles && stow .
+  shell: cd /home/knight/.dotfiles/ && stow .
   tags:
     - dotfiles
     - shell

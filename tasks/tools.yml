@@ -7,7 +7,7 @@
 
 - name: Ensure ~/.local/bin directory exists
   ansible.builtin.file:
-    path: ~/.local/bin
+    path: /home/knight/.local/bin
     state: directory
     mode: '0755'
     owner: "{{ ansible_env.USER }}"
@@ -18,7 +18,7 @@
 - name: Copy tmux-sessionizer to ~/.local/bin
   ansible.builtin.copy:
     src: "{{playbook_dir}}/tmux-sessionizer"
-    dest: ~/.local/bin/tmux-sessionizer
+    dest: /home/knight/.local/bin/tmux-sessionizer
     owner: "{{ ansible_env.USER }}"
     group: "{{ ansible_env.USER }}"
     mode: '0755'
@@ -28,7 +28,7 @@
 - name: Ensure ~/.local/bin is in the PATH
   ansible.builtin.lineinfile:
     path: ~/.profile
-    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    line: 'export PATH="/home/knight/.local/bin:$PATH"'
     state: present
     create: yes
   tags:
