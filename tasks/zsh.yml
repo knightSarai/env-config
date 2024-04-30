@@ -12,7 +12,7 @@
 
 - name: Check that the somefile.conf exists
   stat:
-    path: /home/knight/.oh-my-zsh
+    path: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
   register: oh_my_stats
   tags:
     - zsh
@@ -29,7 +29,7 @@
 - name: Install zsh-autosuggestions
   ansible.builtin.git:
     repo: 'https://github.com/zsh-users/zsh-autosuggestions.git'
-    dest: "/home/knight/.oh-my-zsh/plugins/zsh-autosuggestions"
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-autosuggestions"
   tags:
     - zsh
     - shell
@@ -37,7 +37,7 @@
 - name: Install zsh-vi-mode plugin
   ansible.builtin.git:
     repo: 'https://github.com/jeffreytse/zsh-vi-mode'
-    dest: "/home/knight/.oh-my-zsh/plugins/zsh-vi-mode"
+    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-vi-mode"
   tags:
     - zsh
     - shell

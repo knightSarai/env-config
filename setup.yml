@@ -10,6 +10,7 @@
     tags:
       - install
       - core
+      - shell
   tasks:
   - name: tools
     import_tasks: tasks/tools.yml
@@ -25,3 +26,5 @@
     import_tasks: tasks/nvim.yml
   - name: dotfiles
     import_tasks: tasks/dotfiles.yml
+
+

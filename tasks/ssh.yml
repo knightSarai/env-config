@@ -3,6 +3,8 @@
     dest: "{{ dest_key | dirname }}"
     mode: 0700
     state: directory
+    owner: knight
+    group: knight
   tags:
     - dotfiles
     - ssh
@@ -12,6 +14,7 @@
   copy:
     src: "{{ source_key }}"
     dest: "{{ dest_key }}"
+    owner: knight
     mode: 0600
   tags:
     - dotfiles
@@ -23,6 +26,7 @@
     src: "{{ source_key }}.pub"
     dest: "{{ dest_key }}.pub"
     mode: 0644
+    owner: knight
   tags:
     - dotfiles
     - ssh
@@ -30,11 +34,10 @@
 
 - name: Add public keys to authorized keys
   authorized_key:
-    user: "{{ lookup('env', 'USER') }}"
+    user: "knight"
     state: present
     key: "{{ lookup('file', item) }}"
   loop: "{{ lookup('fileglob', lookup('env', 'HOME') + '/.ssh/*.pub', wantlist=True) }}"
-  become: yes
   tags:
     - dotfiles
     - ssh
