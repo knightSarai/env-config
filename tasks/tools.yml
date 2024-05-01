@@ -24,12 +24,3 @@
     mode: '0755'
   tags:
     - tools
-
-- name: Ensure ~/.local/bin is in the PATH
-  ansible.builtin.lineinfile:
-    path: ~/.profile
-    line: "export PATH='{{ lookup('env', 'HOME') }}/.local/bin:$PATH'"
-    state: present
-    create: yes
-  tags:
-    - tools
