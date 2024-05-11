@@ -49,3 +49,4 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 gsettings set org.gnome.settings-daemon.plugins.media-keys suspend "['<Super><Shift>s']"
 
 gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Super><Control>BackSpace']"
+gsettings set org.gnome.desktop.wm.keybindings close "['<Alt>F4', '<Super>q', '<Super><Shift>q']"
