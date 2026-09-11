@@ -1,0 +1,33 @@
+# Base packages from the Ubuntu/Pop archive. Only tasks in this file need root.
+- name: Install core packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - zsh
+      - tmux
+      - kitty
+      - wl-clipboard
+      - ripgrep
+      - fd-find
+      - stow
+      - unzip
+      - curl
+      - git
+      - openssh-client
+      - build-essential
+      - fontconfig
+      - python3-pip
+      - python3-apt
+      - python3-debian
+      - pipx
+      - gpg
+      - ca-certificates
+      - xz-utils
+    state: present
+
+# Ubuntu ships fd as `fdfind`; nvim/telescope/LazyVim look for `fd`.
+- name: Symlink fd -> fdfind
+  ansible.builtin.file:
+    src: /usr/bin/fdfind
+    dest: "{{ local_bin }}/fd"
+    state: link

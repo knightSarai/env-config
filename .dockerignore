@@ -1,0 +1,3 @@
+# The Dockerfile copies nothing, but keep the build context tiny anyway.
+*
+!Dockerfile

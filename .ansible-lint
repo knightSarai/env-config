@@ -1,0 +1,8 @@
+profile: moderate
+exclude_paths:
+  - .git/
+  - test/
+skip_list:
+  # shell/command tasks here are deliberate (installer scripts, stow, fnm) and carry changed_when.
+  - command-instead-of-shell
+  - risky-shell-pipe

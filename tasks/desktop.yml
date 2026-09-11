@@ -1,0 +1,136 @@
+# GUI / third-party apps. Needs root for apt repos and flatpak remotes.
+# Skipped in the Docker test (`--skip-tags desktop`); the repo/key tasks carry an extra
+# `desktop_repos` tag so the test can run just those and confirm packages resolve.
+# Keys are stored dearmored in /etc/apt/keyrings and referenced via signed-by, using
+# deb822 .sources files (the format Pop!_OS 24.04 itself uses).
+
+- name: Ensure /etc/apt/keyrings exists
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+# ---- Docker CE ---------------------------------------------------------------
+- name: Docker apt key
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: "0644"
+
+- name: Docker apt repo
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
+    architectures: amd64
+    signed_by: /etc/apt/keyrings/docker.asc
+  register: docker_repo
+
+# ---- Cursor ------------------------------------------------------------------
+- name: Cursor apt key
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.shell: >
+    set -o pipefail;
+    curl -fsSL https://downloads.cursor.com/keys/anysphere.asc | gpg --dearmor -o /etc/apt/keyrings/cursor.gpg
+  args:
+    creates: /etc/apt/keyrings/cursor.gpg
+    executable: /bin/bash
+
+- name: Cursor apt repo
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.deb822_repository:
+    name: cursor
+    types: deb
+    uris: https://downloads.cursor.com/aptrepo
+    suites: stable
+    components: main
+    architectures: amd64
+    signed_by: /etc/apt/keyrings/cursor.gpg
+  register: cursor_repo
+
+# ---- 1Password ---------------------------------------------------------------
+- name: 1Password apt key
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.shell: >
+    set -o pipefail;
+    curl -fsSL https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor -o /etc/apt/keyrings/1password.gpg
+  args:
+    creates: /etc/apt/keyrings/1password.gpg
+    executable: /bin/bash
+
+- name: 1Password apt repo
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.deb822_repository:
+    name: 1password
+    types: deb
+    uris: https://downloads.1password.com/linux/debian/amd64
+    suites: stable
+    components: main
+    architectures: amd64
+    signed_by: /etc/apt/keyrings/1password.gpg
+  register: onepassword_repo
+
+- name: Refresh apt cache after repo changes
+  become: true
+  tags: [desktop_repos]
+  ansible.builtin.apt:
+    update_cache: true
+  when: docker_repo.changed or cursor_repo.changed or onepassword_repo.changed
+
+- name: Install Docker, Cursor, 1Password, Flatpak
+  become: true
+  ansible.builtin.apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+      - cursor
+      - 1password
+      - flatpak
+    state: present
+
+- name: Add user to docker group
+  become: true
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups: docker
+    append: true
+
+# ---- Obsidian ----------------------------------------------------------------
+- name: Obsidian .deb
+  become: true
+  ansible.builtin.apt:
+    deb: "https://github.com/obsidianmd/obsidian-releases/releases/download/v{{ obsidian_version }}/obsidian_{{ obsidian_version }}_amd64.deb"
+
+# ---- Flatpaks ----------------------------------------------------------------
+- name: Flathub remote
+  become: true
+  community.general.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    state: present
+
+- name: Flatpak apps
+  become: true
+  community.general.flatpak:
+    name:
+      - org.chromium.Chromium
+      - com.brave.Browser
+      - org.videolan.VLC
+      - com.transmissionbt.Transmission
+    remote: flathub
+    state: present

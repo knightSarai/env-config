@@ -1,3 +1,4 @@
-.git
 .vault-pass.txt
 .nvimlog
+# local ansible collections cache (ansible-galaxy may write here when run from the repo dir)
+.ansible/

@@ -1,33 +1,36 @@
-- name: Backup existing .zshrc
-  ansible.builtin.command:
-    cmd: mv "{{ lookup('env', 'HOME') }}/.zshrc" "{{ lookup('env', 'HOME') }}/.zshrc.backup"
-  args:
-    creates: "{{ lookup('env', 'HOME') }}/.zshrc.backup"
-  tags:
-    - dotfiles
-    - shell
-
-- name: Installing stow
-  apt: name=stow
-  tags:
-    - dotfiles
-    - shell
-
-- name: Cloning .dotfiles
-  become_user: knight
+# Clone .dotfiles and stow it into $HOME, as the user.
+# `stow --adopt` moves any pre-existing real file (e.g. the stock ~/.zshrc or ~/.gitconfig)
+# INTO the repo and replaces it with a symlink; `git checkout -- .` then restores the
+# repo's version, so the end state is always "repo wins" with no backup dance.
+# Override dotfiles_repo with the HTTPS URL when no SSH key is available (tests do this).
+- name: Clone .dotfiles
   ansible.builtin.git:
-    repo: 'git@github.com:knightSarai/.dotfiles.git'
-    dest: "{{ lookup('env', 'HOME') }}/.dotfiles"
-    recursive: yes
-    update: yes
-    accept_hostkey: yes
-    version: "main"
-  tags:
-    - dotfiles
-    - shell
+    repo: "{{ dotfiles_repo }}"
+    dest: "{{ dotfiles_dir }}"
+    version: main
+    accept_newhostkey: true
+    update: false
+
+# Stow "folds" a directory into a single symlink when the target dir does not exist yet.
+# For app-data dirs (Cursor writes caches next to its settings) we want only the tracked
+# files linked, so make sure the parent dirs exist first.
+- name: Pre-create app-data dirs so stow links files, not whole directories
+  ansible.builtin.file:
+    path: "{{ home }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - .config/Cursor/User
+    - .config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
 
 - name: Stow dotfiles
-  shell: cd {{ lookup('env', 'HOME') }}/.dotfiles/ && stow .
-  tags:
-    - dotfiles
-    - shell
+  ansible.builtin.shell: >
+    set -o pipefail;
+    stow --adopt --verbose=1 . 2>&1 | tee /tmp/stow.log;
+    git checkout -- . ;
+    grep -q '^LINK:' /tmp/stow.log && echo STOW_CHANGED || true
+  args:
+    chdir: "{{ dotfiles_dir }}"
+    executable: /bin/bash
+  register: stow_out
+  changed_when: "'STOW_CHANGED' in stow_out.stdout"

@@ -1,30 +1,87 @@
-- hosts: localhost
-  become: true
+# Provision a Pop!_OS 24.04 (COSMIC) machine for the current user.
+#
+# How it fits together:
+#   - Run this as YOUR user, never with sudo:  ./bootstrap.sh  (wraps ansible-playbook -K)
+#   - Tasks that need root (apt, chsh, apt repos, flatpak remotes) escalate individually
+#     with `become: true`; everything else runs as you, so nothing in $HOME ends up root-owned.
+#   - .ssh/id_ed25519{,.pub} in this repo are Ansible-Vault encrypted; the `ssh` tasks
+#     decrypt them into ~/.ssh so the `dotfiles` tasks can clone .dotfiles over SSH.
+#   - Configs (zsh, tmux, nvim, kitty, lazygit, Cursor, COSMIC) live in
+#     github.com/knightSarai/.dotfiles and are symlinked into $HOME with GNU Stow.
+#   - CLI tools are pinned in vars/versions.yml and installed from GitHub releases
+#     into ~/.local (no root, upgrade = bump a version).
+#
+# Tags: core ssh shell bin node fonts tools desktop dotfiles cosmic
+- name: Provision workstation
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars_files:
+    - vars/versions.yml
   vars:
-    source_key: "./.ssh/id_ed25519"
-    dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_ed25519"
+    # Ansible itself lives in a pipx venv; modules must run with the system Python so they
+    # can see python3-apt / python3-debian.
+    ansible_python_interpreter: /usr/bin/python3
+    home: "{{ ansible_env.HOME }}"
+    user: "{{ ansible_user_id }}"
+    local_bin: "{{ home }}/.local/bin"
+    dotfiles_repo: "git@github.com:knightSarai/.dotfiles.git"
+    dotfiles_dir: "{{ home }}/.dotfiles"
+    source_key: "{{ playbook_dir }}/.ssh/id_ed25519"
+    dest_key: "{{ home }}/.ssh/id_ed25519"
+
   pre_tasks:
-  - name: Update Cache
-    apt:
-      update_cache: true
-    tags:
-      - install
-      - core
-      - shell
+    - name: Update apt cache
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      tags: [always]
+
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: "0755"
+      tags: [always]
+
   tasks:
-  - name: tools
-    import_tasks: tasks/tools.yml
-  - name: ssh
-    import_tasks: tasks/ssh.yml
-  - name: zsh
-    import_tasks: tasks/zsh.yml
-  - name: node
-    import_tasks: tasks/node.yml
-  - name: lazygit
-    import_tasks: tasks/lazygit.yml
-  - name: nvim
-    import_tasks: tasks/nvim.yml
-  - name: dotfiles
-    import_tasks: tasks/dotfiles.yml
+    - name: Core apt packages
+      ansible.builtin.import_tasks: tasks/apt.yml
+      tags: [core]
 
+    - name: SSH key from vault
+      ansible.builtin.import_tasks: tasks/ssh.yml
+      tags: [ssh]
 
+    - name: Zsh + oh-my-zsh
+      ansible.builtin.import_tasks: tasks/zsh.yml
+      tags: [shell]
+
+    - name: CLI binaries from GitHub releases
+      ansible.builtin.import_tasks: tasks/binaries.yml
+      tags: [bin]
+
+    - name: Node via fnm
+      ansible.builtin.import_tasks: tasks/node.yml
+      tags: [node]
+
+    - name: Nerd font
+      ansible.builtin.import_tasks: tasks/fonts.yml
+      tags: [fonts]
+
+    - name: Helper scripts
+      ansible.builtin.import_tasks: tasks/tools.yml
+      tags: [tools]
+
+    - name: Desktop apps
+      ansible.builtin.import_tasks: tasks/desktop.yml
+      tags: [desktop]
+
+    - name: COSMIC config dir
+      ansible.builtin.import_tasks: tasks/cosmic.yml
+      tags: [cosmic]
+
+    - name: Dotfiles
+      ansible.builtin.import_tasks: tasks/dotfiles.yml
+      tags: [dotfiles]

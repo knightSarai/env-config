@@ -1,15 +1,18 @@
-- name: Install Node
-  apt:
-    name: ['nodejs', 'npm']
-  tags:
-    - node
-- name: Install n
-  npm: 
-    name: n
-    global: true
-  tags:
-    - node
-- name: Install node lts
-  shell: n i lts
-  tags:
-    - node
+# Node via fnm (installed by tasks/binaries.yml). Everything lives under ~/.local/share/fnm;
+# nothing touches /usr/local, so `npm i -g` never needs sudo.
+# .zshrc activates it with: eval "$(fnm env --use-on-cd --shell zsh)"
+- name: Install latest LTS node
+  ansible.builtin.command: "{{ local_bin }}/fnm install --lts"
+  register: fnm_install
+  changed_when: "'already installed' not in fnm_install.stderr and 'already installed' not in fnm_install.stdout"
+
+- name: Make LTS the default
+  ansible.builtin.shell: >
+    set -o pipefail;
+    current="$({{ local_bin }}/fnm default 2>/dev/null || true)";
+    lts="$({{ local_bin }}/fnm ls | grep -o 'v[0-9.]*' | sort -V | tail -1)";
+    if [ "$current" != "$lts" ]; then {{ local_bin }}/fnm default "$lts"; echo changed; fi
+  args:
+    executable: /bin/bash
+  register: fnm_default
+  changed_when: "'changed' in fnm_default.stdout"

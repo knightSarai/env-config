@@ -1,0 +1,44 @@
+# Pinned release versions. Bump a number here and re-run `./bootstrap.sh --tags bin`
+# (or the relevant tag) to upgrade. Checked against GitHub releases on 2026-09-11.
+neovim_version: "0.12.5"
+lazygit_version: "0.65.0"
+fzf_version: "0.74.3"
+delta_version: "0.19.2"
+eza_version: "0.23.5"
+fnm_version: "1.39.0"
+obsidian_version: "1.13.7"
+nerd_fonts_version: "3.5.1"
+
+# Each entry: archive url, dir under ~/.local/opt to unpack into, path of the binary
+# inside the archive, and a string the tool's --version output must contain (smoke test).
+binaries:
+  - name: nvim
+    dir: "nvim-{{ neovim_version }}"
+    url: "https://github.com/neovim/neovim/releases/download/v{{ neovim_version }}/nvim-linux-x86_64.tar.gz"
+    archive_bin: "nvim-linux-x86_64/bin/nvim"
+    version_match: "v{{ neovim_version }}"
+  - name: lazygit
+    dir: "lazygit-{{ lazygit_version }}"
+    url: "https://github.com/jesseduffield/lazygit/releases/download/v{{ lazygit_version }}/lazygit_{{ lazygit_version }}_linux_x86_64.tar.gz"
+    archive_bin: "lazygit"
+    version_match: "version={{ lazygit_version }}"
+  - name: fzf
+    dir: "fzf-{{ fzf_version }}"
+    url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_version }}/fzf-{{ fzf_version }}-linux_amd64.tar.gz"
+    archive_bin: "fzf"
+    version_match: "{{ fzf_version }}"
+  - name: delta
+    dir: "delta-{{ delta_version }}"
+    url: "https://github.com/dandavison/delta/releases/download/{{ delta_version }}/delta-{{ delta_version }}-x86_64-unknown-linux-gnu.tar.gz"
+    archive_bin: "delta-{{ delta_version }}-x86_64-unknown-linux-gnu/delta"
+    version_match: "delta {{ delta_version }}"
+  - name: eza
+    dir: "eza-{{ eza_version }}"
+    url: "https://github.com/eza-community/eza/releases/download/v{{ eza_version }}/eza_x86_64-unknown-linux-gnu.tar.gz"
+    archive_bin: "eza"
+    version_match: "v{{ eza_version }}"
+  - name: fnm
+    dir: "fnm-{{ fnm_version }}"
+    url: "https://github.com/Schniz/fnm/releases/download/v{{ fnm_version }}/fnm-linux.zip"
+    archive_bin: "fnm"
+    version_match: "fnm {{ fnm_version }}"

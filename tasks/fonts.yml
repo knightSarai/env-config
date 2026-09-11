@@ -1,0 +1,19 @@
+# JetBrainsMono Nerd Font into the user's font dir. No root.
+- name: Ensure font dir exists
+  ansible.builtin.file:
+    path: "{{ home }}/.local/share/fonts/JetBrainsMonoNerd"
+    state: directory
+    mode: "0755"
+
+- name: Download and unpack JetBrainsMono Nerd Font
+  ansible.builtin.unarchive:
+    src: "https://github.com/ryanoasis/nerd-fonts/releases/download/v{{ nerd_fonts_version }}/JetBrainsMono.tar.xz"
+    dest: "{{ home }}/.local/share/fonts/JetBrainsMonoNerd"
+    remote_src: true
+    creates: "{{ home }}/.local/share/fonts/JetBrainsMonoNerd/JetBrainsMonoNerdFont-Regular.ttf"
+  register: font_unpacked
+
+- name: Refresh font cache
+  ansible.builtin.command: fc-cache -f
+  when: font_unpacked.changed
+  changed_when: font_unpacked.changed

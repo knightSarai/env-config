@@ -1,0 +1,32 @@
+# CLI tools from pinned GitHub releases, installed into ~/.local as the user.
+# Versions and archive layouts live in vars/versions.yml. Each tool is unpacked into
+# ~/.local/opt/<name>-<version>/ and its binary symlinked to ~/.local/bin/<name>, so
+# bumping a version installs alongside the old one and repoints the link.
+- name: Create unpack dirs
+  ansible.builtin.file:
+    path: "{{ home }}/.local/opt/{{ item.dir }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ binaries }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Download and unpack release archives
+  ansible.builtin.unarchive:
+    src: "{{ item.url }}"
+    dest: "{{ home }}/.local/opt/{{ item.dir }}"
+    remote_src: true
+    creates: "{{ home }}/.local/opt/{{ item.dir }}/{{ item.archive_bin }}"
+  loop: "{{ binaries }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Link binaries into ~/.local/bin
+  ansible.builtin.file:
+    src: "{{ home }}/.local/opt/{{ item.dir }}/{{ item.archive_bin }}"
+    dest: "{{ local_bin }}/{{ item.name }}"
+    state: link
+    force: true
+  loop: "{{ binaries }}"
+  loop_control:
+    label: "{{ item.name }}"

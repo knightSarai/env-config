@@ -1,44 +1,60 @@
-- name: Install zsh
-  apt: name=zsh
-  tags:
-    - zsh
-    - shell
+# oh-my-zsh + plugins + catppuccin theme, installed as the user. Only chsh needs root.
+# KEEP_ZSHRC=yes so the installer never overwrites the stowed ~/.zshrc.
+# The theme file finds its flavors dir via ${0:A:h} (symlink-resolved), so one symlink
+# from custom/themes/ into the cloned repo is enough.
+- name: Check for oh-my-zsh
+  ansible.builtin.stat:
+    path: "{{ home }}/.oh-my-zsh"
+  register: omz
 
-- name: Change Shell
-  shell: chsh -s `which zsh`
-  tags:
-    - zsh
-    - shell
+- name: Download oh-my-zsh installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/omz-install.sh
+    mode: "0755"
+  when: not omz.stat.exists
 
-- name: Check that the somefile.conf exists
-  stat:
-    path: "{{ lookup('env', 'HOME') }}/.oh-my-zsh"
-  register: oh_my_stats
-  tags:
-    - zsh
-    - shell
+- name: Install oh-my-zsh
+  ansible.builtin.command: /tmp/omz-install.sh
+  environment:
+    RUNZSH: "no"
+    CHSH: "no"
+    KEEP_ZSHRC: "yes"
+  args:
+    creates: "{{ home }}/.oh-my-zsh/oh-my-zsh.sh"
+  when: not omz.stat.exists
 
-- name: Oh-My-Zsh
-  shell: curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh > ~/.oh-my-installer && chmod +x ~/.oh-my-installer && ~/.oh-my-installer
-  when: oh_my_stats.stat.exists == False
-  become_user: knight
-  tags:
-    - zsh
-    - shell
-
-- name: Install zsh-autosuggestions
+- name: Install zsh plugins
   ansible.builtin.git:
-    repo: 'https://github.com/zsh-users/zsh-autosuggestions.git'
-    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-autosuggestions"
-  tags:
-    - zsh
-    - shell
+    repo: "{{ item.repo }}"
+    dest: "{{ home }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    depth: 1
+    version: master
+  loop:
+    - { name: zsh-autosuggestions, repo: "https://github.com/zsh-users/zsh-autosuggestions.git" }
+    - { name: zsh-vi-mode, repo: "https://github.com/jeffreytse/zsh-vi-mode.git" }
 
-- name: Install zsh-vi-mode plugin
+- name: Install catppuccin zsh theme
   ansible.builtin.git:
-    repo: 'https://github.com/jeffreytse/zsh-vi-mode'
-    dest: "{{ lookup('env', 'HOME') }}/.oh-my-zsh/plugins/zsh-vi-mode"
-  tags:
-    - zsh
-    - shell
+    repo: "https://github.com/JannoTjarks/catppuccin-zsh.git"
+    dest: "{{ home }}/.oh-my-zsh/custom/themes/catppuccin-zsh"
+    depth: 1
+    version: main
 
+- name: Link catppuccin theme into oh-my-zsh
+  ansible.builtin.file:
+    src: "{{ home }}/.oh-my-zsh/custom/themes/catppuccin-zsh/catppuccin.zsh-theme"
+    dest: "{{ home }}/.oh-my-zsh/custom/themes/catppuccin.zsh-theme"
+    state: link
+
+- name: Read current login shell
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ user }}"
+
+- name: Set zsh as login shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ user }}"
+    shell: /usr/bin/zsh
+  when: getent_passwd[user][5] != '/usr/bin/zsh'

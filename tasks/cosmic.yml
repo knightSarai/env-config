@@ -1,0 +1,10 @@
+# COSMIC keeps all its config as plain files under ~/.config/cosmic/.
+# The actual settings (shortcuts, workspaces...) live in .dotfiles/.config/cosmic and are
+# stowed like everything else. This only guarantees the parent dir exists so stow links
+# individual files into it rather than replacing the whole directory with one symlink
+# (COSMIC writes other files there at runtime that should not land in the repo).
+- name: Ensure ~/.config/cosmic exists
+  ansible.builtin.file:
+    path: "{{ home }}/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1"
+    state: directory
+    mode: "0755"

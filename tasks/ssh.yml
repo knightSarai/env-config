@@ -1,44 +1,28 @@
-- name: Ensure .ssh directory exists.
-  file:
-    dest: "{{ dest_key | dirname }}"
-    mode: 0700
+# Install the vault-encrypted key from ./.ssh into ~/.ssh.
+# `copy` decrypts vault files transparently, so the playbook needs --ask-vault-pass
+# (bootstrap.sh handles this). Runs as the user; no root involved.
+- name: Ensure ~/.ssh exists
+  ansible.builtin.file:
+    path: "{{ dest_key | dirname }}"
     state: directory
-    owner: knight
-    group: knight
-  tags:
-    - dotfiles
-    - ssh
-    - shell
+    mode: "0700"
 
-- name: Install ssh key
-  copy:
+- name: Install private key
+  ansible.builtin.copy:
     src: "{{ source_key }}"
     dest: "{{ dest_key }}"
-    owner: knight
-    mode: 0600
-  tags:
-    - dotfiles
-    - ssh
-    - shell
+    mode: "0600"
+    decrypt: true
 
-- name: Install ssh key public
-  copy:
+- name: Install public key
+  ansible.builtin.copy:
     src: "{{ source_key }}.pub"
     dest: "{{ dest_key }}.pub"
-    mode: 0644
-    owner: knight
-  tags:
-    - dotfiles
-    - ssh
-    - shell
+    mode: "0644"
+    decrypt: true
 
-- name: Add public keys to authorized keys
-  authorized_key:
-    user: "knight"
+- name: Authorize own public key
+  ansible.posix.authorized_key:
+    user: "{{ user }}"
     state: present
-    key: "{{ lookup('file', item) }}"
-  loop: "{{ lookup('fileglob', lookup('env', 'HOME') + '/.ssh/*.pub', wantlist=True) }}"
-  tags:
-    - dotfiles
-    - ssh
-    - shell
+    key: "{{ lookup('file', dest_key + '.pub') }}"
