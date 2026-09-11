@@ -22,6 +22,8 @@
   loop:
     - .config/Cursor/User
     - .config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
+    - .config/cosmic/com.system76.CosmicComp/v1
+    - .config/cosmic/com.system76.CosmicPanel.Panel/v1
 
 - name: Stow dotfiles
   ansible.builtin.shell: >

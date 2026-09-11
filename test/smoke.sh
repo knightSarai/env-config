@@ -36,6 +36,8 @@ done
 check "~/.config/Cursor is a real dir (not folded into repo)" bash -c "[ -d \"$HOME/.config/Cursor\" ] && [ ! -L \"$HOME/.config/Cursor\" ]"
 check "~/.config/cosmic is a real dir"                           bash -c "[ -d \"$HOME/.config/cosmic\" ] && [ ! -L \"$HOME/.config/cosmic\" ]"
 check "COSMIC shortcuts file linked" bash -c "readlink -f \"$HOME/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom\" | grep -q '^$HOME/.dotfiles/'"
+check "COSMIC pinned workspaces linked" bash -c "readlink -f \"$HOME/.config/cosmic/com.system76.CosmicComp/v1/pinned_workspaces\" | grep -q '^$HOME/.dotfiles/'"
+check "COSMIC panel applets linked" bash -c "readlink -f \"$HOME/.config/cosmic/com.system76.CosmicPanel.Panel/v1/plugins_wings\" | grep -q '^$HOME/.dotfiles/'"
 check "no Cursor cache inside repo"  bash -c "[ ! -e \"$HOME/.dotfiles/.config/Cursor/Cache\" ]"
 
 echo "== ownership"
