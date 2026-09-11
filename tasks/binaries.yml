@@ -20,6 +20,11 @@
   loop: "{{ binaries }}"
   loop_control:
     label: "{{ item.name }}"
+  # GitHub downloads occasionally hit transient DNS/network errors.
+  register: unpack
+  until: unpack is not failed
+  retries: 3
+  delay: 5
 
 - name: Link binaries into ~/.local/bin
   ansible.builtin.file:

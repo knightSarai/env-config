@@ -12,6 +12,9 @@
     remote_src: true
     creates: "{{ home }}/.local/share/fonts/JetBrainsMonoNerd/JetBrainsMonoNerdFont-Regular.ttf"
   register: font_unpacked
+  until: font_unpacked is not failed
+  retries: 3
+  delay: 5
 
 - name: Refresh font cache
   ansible.builtin.command: fc-cache -f
