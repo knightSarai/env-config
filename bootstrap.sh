@@ -43,8 +43,10 @@ case " $* " in
 esac
 
 BECOME_ARGS=(-K)
-# Passwordless sudo (containers, CI): skip the prompt.
-if sudo -n true 2>/dev/null; then
+# Passwordless sudo (containers, CI): skip the prompt. -k ignores credentials cached by
+# the apt-get calls above, which would otherwise make a password-requiring sudo look
+# passwordless here while Ansible's own sudo (in a fresh pty) still gets prompted.
+if sudo -kn true 2>/dev/null; then
   BECOME_ARGS=()
 fi
 
